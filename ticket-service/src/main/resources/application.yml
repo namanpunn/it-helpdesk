@@ -1,18 +1,20 @@
 spring:
   application:
     name: ticket-service
-  profiles:
-    active: dev
 
 server:
   port: 8080
 
-# Firestore Configuration
 google:
   cloud:
-    project-id: ${GCP_PROJECT_ID:helpdesk-local}
-    firestore:
-      enabled: true
+    project-id: helpdesk-local
+
+# Firestore configuration
+firestore:
+  emulator:
+    enabled: true
+  collection:
+    tickets: tickets
 
 # API Documentation
 springdoc:
@@ -20,8 +22,9 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    operations-sorter: method
 
-# Actuator endpoints
+# Actuator
 management:
   endpoints:
     web:
@@ -35,6 +38,6 @@ management:
 logging:
   level:
     com.helpdesk: DEBUG
-    org.springframework: INFO
+    com.google.cloud: INFO
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

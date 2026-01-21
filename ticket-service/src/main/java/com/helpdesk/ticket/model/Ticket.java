@@ -1,5 +1,6 @@
 package com.helpdesk.ticket.model;
 
+import com.google.cloud.firestore.annotation.DocumentId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ticket {
+
+    @DocumentId
     private String ticketId;
+
     private String employeeId;
     private String employeeName;
     private TicketCategory category;
@@ -20,4 +24,8 @@ public class Ticket {
     private TicketPriority priority;
     private LocalDateTime createdAt;
     private String createdBy;
+
+    public static String generateTicketId() {
+        return "TKT-" + System.currentTimeMillis();
+    }
 }

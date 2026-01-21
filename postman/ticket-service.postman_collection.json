@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "IT Helpdesk - Ticket Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Ticket",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"employeeId\": \"EMP001\",\n  \"employeeName\": \"John Doe\",\n  \"category\": \"LAPTOP\",\n  \"description\": \"My laptop is running very slow and freezing frequently\",\n  \"priority\": \"HIGH\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/tickets/create",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["tickets", "create"]
+        }
+      }
+    },
+    {
+      "name": "Get Ticket by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/tickets/{{ticketId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["tickets", "{{ticketId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Tickets by Employee",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/tickets/employee/EMP001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["tickets", "employee", "EMP001"]
+        }
+      }
+    },
+    {
+      "name": "Get Tickets by Priority",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/tickets/priority/HIGH",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["tickets", "priority", "HIGH"]
+        }
+      }
+    },
+    {
+      "name": "Get All Tickets",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/tickets/all",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["tickets", "all"]
+        }
+      }
+    }
+  ]
+}
