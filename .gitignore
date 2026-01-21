@@ -1,0 +1,29 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+*.iml
+.idea/
+.vscode/
+
+# Spring Boot
+application-local.yml
+application-prod.yml
+
+# Google Cloud
+serviceAccountKey.json
+*-firebase-key.json
+.gcloud/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml

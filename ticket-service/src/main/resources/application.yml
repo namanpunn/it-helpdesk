@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: ticket-service
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+# Firestore Configuration
+google:
+  cloud:
+    project-id: ${GCP_PROJECT_ID:helpdesk-local}
+    firestore:
+      enabled: true
+
+# API Documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.helpdesk: DEBUG
+    org.springframework: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
