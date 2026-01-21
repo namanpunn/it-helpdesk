@@ -1,4 +1,4 @@
-package com.helpdesk.status_service;
+package com.helpdesk.status;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
