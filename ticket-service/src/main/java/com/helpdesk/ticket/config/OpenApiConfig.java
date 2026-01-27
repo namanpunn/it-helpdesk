@@ -19,18 +19,7 @@ public class OpenApiConfig {
                         .title("Ticket Service API")
                         .version("1.0")
                         .description("""
-                                IT Helpdesk Ticket Management Service with JWT Authentication
-                                
-                                **To use protected endpoints:**
-                                1. Login at /auth/login
-                                2. Copy the token from response
-                                3. Click 'Authorize' button above
-                                4. Enter: Bearer {your-token}
-                                
-                                **Demo Users:**
-                                - Username: john.doe, Password: password123
-                                - Username: admin, Password: admin123
-                                - Username: it.support, Password: support123
+                                IT Helpdesk Ticket Management Service with JWT Authentication 
                                 """)
                         .contact(new Contact()
                                 .name("Your Name")

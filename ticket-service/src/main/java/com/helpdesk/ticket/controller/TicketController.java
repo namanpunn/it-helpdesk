@@ -4,6 +4,7 @@ import com.helpdesk.ticket.dto.ApiResponse;
 import com.helpdesk.ticket.dto.CreateTicketRequest;
 import com.helpdesk.ticket.model.Ticket;
 import com.helpdesk.ticket.model.TicketPriority;
+import com.helpdesk.ticket.service.SlaService;
 import com.helpdesk.ticket.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.helpdesk.ticket.dto.SlaReportResponse;
+import com.helpdesk.ticket.dto.SlaStatusResponse;
+import java.time.Duration;
 
 import java.util.List;
 
@@ -25,6 +29,7 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
+    private final SlaService slaService;
 
     @PostMapping("/create")
     @Operation(summary = "Create a new ticket", description = "Creates a new IT helpdesk ticket")
@@ -129,5 +134,113 @@ public class TicketController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/sla/violated")
+    @Operation(summary = "Get SLA violated tickets", description = "Retrieves all tickets that violated SLA")
+    public ResponseEntity<ApiResponse<List<Ticket>>> getSlaViolatedTickets() {
+
+        log.info("Received request to fetch SLA violated tickets");
+
+        List<Ticket> tickets = ticketService.getSlaViolatedTickets();
+
+        ApiResponse<List<Ticket>> response = ApiResponse.success(
+                String.format("Found %d SLA violated ticket(s)", tickets.size()),
+                tickets
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/sla/critical")
+    @Operation(summary = "Get critical tickets", description = "Retrieves tickets at risk of SLA violation (less than 2 hours)")
+    public ResponseEntity<ApiResponse<List<Ticket>>> getCriticalTickets() {
+
+        log.info("Received request to fetch critical tickets");
+
+        List<Ticket> tickets = ticketService.getCriticalTickets();
+
+        ApiResponse<List<Ticket>> response = ApiResponse.success(
+                String.format("Found %d critical ticket(s)", tickets.size()),
+                tickets
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/sla/report")
+    @Operation(summary = "Get SLA report", description = "Retrieves comprehensive SLA compliance report")
+    public ResponseEntity<ApiResponse<SlaReportResponse>> getSlaReport() {
+
+        log.info("Received request to generate SLA report");
+
+        List<Ticket> allTickets = ticketService.getAllTickets();
+        List<Ticket> violatedTickets = ticketService.getSlaViolatedTickets();
+        List<Ticket> criticalTickets = ticketService.getCriticalTickets();
+
+        // Build SLA status responses
+        List<SlaStatusResponse> violatedResponses = violatedTickets.stream()
+                .map(this::buildSlaStatus)
+                .toList();
+
+        List<SlaStatusResponse> criticalResponses = criticalTickets.stream()
+                .map(this::buildSlaStatus)
+                .toList();
+
+        int onTrackCount = allTickets.size() - violatedTickets.size() - criticalTickets.size();
+        double violationRate = allTickets.isEmpty() ? 0 :
+                (double) violatedTickets.size() / allTickets.size() * 100;
+
+        SlaReportResponse report = SlaReportResponse.builder()
+                .totalTickets(allTickets.size())
+                .violatedCount(violatedTickets.size())
+                .criticalCount(criticalTickets.size())
+                .onTrackCount(Math.max(0, onTrackCount))
+                .violationRate(violationRate)
+                .violatedTickets(violatedResponses)
+                .criticalTickets(criticalResponses)
+                .build();
+
+        ApiResponse<SlaReportResponse> response = ApiResponse.success(
+                "SLA report generated successfully",
+                report
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{ticketId}/sla")
+    @Operation(summary = "Get ticket SLA status", description = "Get detailed SLA status for a specific ticket")
+    public ResponseEntity<ApiResponse<SlaStatusResponse>> getTicketSlaStatus(
+            @PathVariable String ticketId) {
+
+        log.info("Received request to fetch SLA status for ticket: {}", ticketId);
+
+        Ticket ticket = ticketService.getTicketById(ticketId);
+        SlaStatusResponse slaStatus = buildSlaStatus(ticket);
+
+        ApiResponse<SlaStatusResponse> response = ApiResponse.success(
+                "SLA status retrieved successfully",
+                slaStatus
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Helper method to build SLA status
+    private SlaStatusResponse buildSlaStatus(Ticket ticket) {
+        Duration remaining = slaService.getRemainingTime(ticket);
+
+        return SlaStatusResponse.builder()
+                .ticketId(ticket.getTicketId())
+                .createdAt(ticket.getCreatedAt())
+                .slaDueDate(ticket.getSlaDueDate())
+                .slaViolated(ticket.isSlaViolated())
+                .slaViolatedAt(ticket.getSlaViolatedAt())
+                .slaStatus(slaService.getSlaStatusMessage(ticket))
+                .remainingHours(remaining.toHours())
+                .remainingMinutes(remaining.toMinutesPart())
+                .critical(slaService.isCritical(ticket))
+                .build();
     }
 }

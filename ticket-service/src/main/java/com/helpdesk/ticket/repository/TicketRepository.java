@@ -4,6 +4,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.helpdesk.ticket.exception.TicketServiceException;
 import com.helpdesk.ticket.model.Ticket;
+import com.helpdesk.ticket.model.TicketCategory;
 import com.helpdesk.ticket.model.TicketPriority;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -171,25 +169,40 @@ public class TicketRepository {
                 .ticketId(document.getId())
                 .employeeId(document.getString("employeeId"))
                 .employeeName(document.getString("employeeName"))
-                .category(com.helpdesk.ticket.model.TicketCategory.valueOf(document.getString("category")))
+                .category(TicketCategory.valueOf(document.getString("category")))
                 .description(document.getString("description"))
                 .priority(TicketPriority.valueOf(document.getString("priority")))
                 .createdAt(dateToLocalDateTime(document.getDate("createdAt")))
                 .createdBy(document.getString("createdBy"))
+                .slaDueDate(document.getDate("slaDueDate") != null ?
+                        dateToLocalDateTime(document.getDate("slaDueDate")) : null)
+                .slaViolated(document.getBoolean("slaViolated") != null ?
+                        document.getBoolean("slaViolated") : false)
+                .slaViolatedAt(document.getDate("slaViolatedAt") != null ?
+                        dateToLocalDateTime(document.getDate("slaViolatedAt")) : null)
                 .build();
     }
 
-    private Object convertToMap(Ticket ticket) {
-        return new java.util.HashMap<String, Object>() {{
-            put("ticketId", ticket.getTicketId());
-            put("employeeId", ticket.getEmployeeId());
-            put("employeeName", ticket.getEmployeeName());
-            put("category", ticket.getCategory().name());
-            put("description", ticket.getDescription());
-            put("priority", ticket.getPriority().name());
-            put("createdAt", localDateTimeToDate(ticket.getCreatedAt()));
-            put("createdBy", ticket.getCreatedBy());
-        }};
+    private Map<String, Object> convertToMap(Ticket ticket) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("ticketId", ticket.getTicketId());
+        map.put("employeeId", ticket.getEmployeeId());
+        map.put("employeeName", ticket.getEmployeeName());
+        map.put("category", ticket.getCategory().name());
+        map.put("description", ticket.getDescription());
+        map.put("priority", ticket.getPriority().name());
+        map.put("createdAt", localDateTimeToDate(ticket.getCreatedAt()));
+        map.put("createdBy", ticket.getCreatedBy());
+
+        if (ticket.getSlaDueDate() != null) {
+            map.put("slaDueDate", localDateTimeToDate(ticket.getSlaDueDate()));
+        }
+        map.put("slaViolated", ticket.isSlaViolated());
+        if (ticket.getSlaViolatedAt() != null) {
+            map.put("slaViolatedAt", localDateTimeToDate(ticket.getSlaViolatedAt()));
+        }
+
+        return map;
     }
 
     private Date localDateTimeToDate(LocalDateTime localDateTime) {
