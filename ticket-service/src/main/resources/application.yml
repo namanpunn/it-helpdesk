@@ -15,6 +15,9 @@ firestore:
     enabled: true
   collection:
     tickets: tickets
+jwt:
+  secret: "helpdesk-secret-key-that-should-be-at-least-256-bits-long-for-hs256-algorithm"
+  expiration: 86400000  # 24 hours in milliseconds
 
 # API Documentation
 springdoc:

@@ -9,7 +9,14 @@ services:
     environment:
       - FIRESTORE_PROJECT_ID=helpdesk-local
     volumes:
-      - firestore-data:/data
+      - firestore-data:/data:/opt/data
+    networks:
+      - helpdesk-network
 
 volumes:
   firestore-data:
+    driver: local
+
+networks:
+  helpdesk-network:
+    driver: bridge
