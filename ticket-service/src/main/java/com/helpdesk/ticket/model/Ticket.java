@@ -25,7 +25,18 @@ public class Ticket {
     private LocalDateTime createdAt;
     private String createdBy;
 
+    private LocalDateTime slaDueDate;
+    private boolean slaViolated;
+    private LocalDateTime slaViolatedAt;
+
     public static String generateTicketId() {
         return "TKT-" + System.currentTimeMillis();
+    }
+
+    public boolean isOverdue() {
+        if (slaDueDate == null) {
+            return false;
+        }
+        return LocalDateTime.now().isAfter(slaDueDate);
     }
 }

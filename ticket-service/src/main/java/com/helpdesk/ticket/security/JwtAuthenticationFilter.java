@@ -110,6 +110,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/api-docs") ||
                 path.equals("/");
+
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
